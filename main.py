@@ -1,34 +1,10 @@
 from fastapi import FastAPI 
 from typing import Any
-from pydantic import BaseModel
+from data import ToDo
+from models import ModelOfItem
+
 
 app = FastAPI()  # instânicia de fastapi contém tudo que é necessário e os decorators
-
-
-class ModelOfItem(BaseModel):
-    """Permite criar os schemas nas docs"""
-    id: int
-    title: str 
-    status: str = '' # status pode vir vazio
-
-
-
-
-# to - do list
-todo_list: list[dict[str, Any]]  = [
-    {   
-        "id":1,
-        "title": "Estudar fastapi basicona",
-        "descrição": "Afim de entender melhor api e a fastapi",
-        "status": "Em progresso"
-    },
-     {   
-        "id":2,
-        "title": "Trabalhar",
-        "descrição": "Afim de aprender e ganhar dinheiro",
-        "status": "daqui a pouco"
-    },
-]
 
 
 @app.get("/")  # get para o endpoint raiz
@@ -45,4 +21,22 @@ def todo() -> list[dict[str, Any]]:
     """
     View que exibe coisas a fazer
     """
-    return todo_list
+    return ToDo().listThis()
+
+
+@app.post("/tarefas/post", response_model=list[ModelOfItem], status_code=201)  # é possível identificar o status code 201 etc aqui
+def insertToDo(insert: ModelOfItem) -> None:
+    """
+    view que insere item na lista de itens a fazer
+    """
+    ToDo().insert(insert.dict())
+
+
+@app.get("/tarefas/{id}", response_model=list[ModelOfItem])
+def getItem(id: int) -> list[dict[str, Any]]:
+    # retorna um elemento da lista
+    todo = ToDo().listThis()
+    item = filter(lambda x: x["id"] == id, todo)
+    if item:
+        return list(item)
+    return [{"item": "não encontrado"}]
