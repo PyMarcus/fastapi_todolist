@@ -13,4 +13,4 @@ basta acessar o endpoint /docs ou /redocs (in endpoints /docs or /redocs)
 uvicorn main:app --reload (para desenvolvimento)
 
 ### Executar testes (play tests):
-pytest script.py
+pytest teste.py
